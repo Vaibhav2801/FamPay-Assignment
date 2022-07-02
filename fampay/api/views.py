@@ -6,57 +6,61 @@ import requests
 from video.models import Video
 from rest_framework import pagination
 from django.db.models import Q
+import asyncio
 from django.core.paginator import Paginator ,EmptyPage ,PageNotAnInteger
+from asgiref.sync import sync_to_async
 # Create your views here.
 
 
-
+@sync_to_async
 def fetch_videos(x):
+     return redirect('home')
+    
+
+
+async def home(request):
+
+
     search_url='https://www.googleapis.com/youtube/v3/search'
     video_url = 'https://www.googleapis.com/youtube/v3/videos'
-    
+        
     search_params = {
-            'part' : 'snippet',
-            'q' : x,
-            'key' : settings.YOUTUBE_DATA_API_KEY,
-             'maxResults' : 10,
-             'type' : 'video'
-        }
+                'part' : 'snippet',
+                'q' :request.POST.get('search'), 
+                'key' : settings.YOUTUBE_DATA_API_KEY,
+                'maxResults' : 10,
+                'type' : 'video'
+            }
     video_ids=[]
     r=requests.get(search_url,params=search_params)
-    # print(r.text)
-    # print(r.json()['items'][0]['id']['videoId'])
+        
+        # print(r.text)
+        # print(r.json()['items'][0]['id']['videoId'])
     res=r.json()['items']
     for result in res:
-         video_ids.append(result['id']['videoId'])
+            video_ids.append(result['id']['videoId'])
 
     video_params = {
-            'key' : settings.YOUTUBE_DATA_API_KEY,
-            'part' : 'snippet,contentDetails',
-            'id' : ','.join(video_ids),
-            'maxResults' : 10
-        }
+                'key' : settings.YOUTUBE_DATA_API_KEY,
+                'part' : 'snippet,contentDetails',
+                'id' : ','.join(video_ids),
+                'maxResults' : 10
+            }
     r = requests.get(video_url, params=video_params)
-    # print(r.text)
-    results = r.json()['items']
+        # print(r.text)
+    results =  r.json()['items']
     for result in results:
-            video_data = Video(
+                video_data = Video(
+                    
+                    video_id = result['id'],
+                    title = result['snippet']['title'],
+                    description = result['snippet']['description'],
+                    url = f'https://www.youtube.com/watch?v={ result["id"] }',
+                    upload_time = result['snippet']['publishedAt'],
+                    thumbnail = result['snippet']['thumbnails']['high']['url']
+                )
                 
-                video_id = result['id'],
-                title = result['snippet']['title'],
-                description = result['snippet']['description'],
-                url = f'https://www.youtube.com/watch?v={ result["id"] }',
-                upload_time = result['snippet']['publishedAt'],
-                thumbnail = result['snippet']['thumbnails']['high']['url']
-            )
-            
-            video_data.save()
-    return redirect('home')
-    
-
-
-def home(request):    
-    fetch_videos(request.POST.get('search'))
+                video_data.save()  
     item = []
     item = Video.objects.all()
     if request.method == 'POST':
