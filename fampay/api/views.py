@@ -1,7 +1,5 @@
 from django.shortcuts import render, HttpResponse, redirect
-from api import views
 from django.conf import settings
-from django.http import JsonResponse
 import requests
 from video.models import Video
 from rest_framework import pagination
@@ -14,13 +12,12 @@ from asgiref.sync import sync_to_async
 
 @sync_to_async
 def fetch_videos(x):
-     return redirect('home')
-    
+     return redirect('home')    
 
-
+# Creating Function which will fetch data from api and store it in databas
+# Sending data to the index temmplate
 async def home(request):
-
-
+    
     search_url='https://www.googleapis.com/youtube/v3/search'
     video_url = 'https://www.googleapis.com/youtube/v3/videos'
         
@@ -36,6 +33,10 @@ async def home(request):
         
         # print(r.text)
         # print(r.json()['items'][0]['id']['videoId'])
+       
+       
+       
+        #querying the videos with thier id
     res=r.json()['items']
     for result in res:
             video_ids.append(result['id']['videoId'])
@@ -46,6 +47,8 @@ async def home(request):
                 'id' : ','.join(video_ids),
                 'maxResults' : 10
             }
+
+              #querying detail infromation about the videos
     r = requests.get(video_url, params=video_params)
         # print(r.text)
     results =  r.json()['items']
@@ -61,6 +64,9 @@ async def home(request):
                 )
                 
                 video_data.save()  
+    
+    
+#it will give a html response based on the query
     item = []
     item = Video.objects.all()
     if request.method == 'POST':
