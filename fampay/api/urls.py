@@ -1,6 +1,6 @@
 from django.urls import path, include
 from api import views
 urlpatterns = [
-    path('', views.fetch_videos,name='fetch_videos'),
+    path('', views.home,name='home'),
     path('video/', include('video.urls')),
 ]

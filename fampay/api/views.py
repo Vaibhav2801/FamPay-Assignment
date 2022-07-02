@@ -1,7 +1,8 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from api import views
 from django.conf import settings
 from django.http import JsonResponse
+import asyncio
 import requests
 from video.models import Video
 from django.db.models import Q
@@ -10,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 
-def fetch_videos(req):
+def fetch_videos():
     search_url='https://www.googleapis.com/youtube/v3/search'
     video_url = 'https://www.googleapis.com/youtube/v3/videos'
     
@@ -48,12 +49,13 @@ def fetch_videos(req):
             )
             
             video_data.save()
-    
+    return redirect('home')
     
 
 
-async def home(request):    
-    asyncio.ensure_future(fetch_videos())
+def home(request):    
+    # asyncio.ensure_future(fetch_videos())
+    fetch_videos()
     item = []
     if request.method == 'POST':
         if request.POST['submit'] == 'lucky':
@@ -65,7 +67,7 @@ async def home(request):
     context = {
     'videos' : item
     }
-    return render(request, 'api/index.html', context)
+    return render(request, 'index.html', context)
 
 
 
