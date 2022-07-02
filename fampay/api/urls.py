@@ -1,5 +1,5 @@
 from django.urls import path
 from api import views
 urlpatterns = [
-    path('', views.index,name='index'),
+    path('', views.fetch_videos,name='fetch_videos'),
 ]
