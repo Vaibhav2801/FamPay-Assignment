@@ -30,22 +30,44 @@
 
 <main role="main">
 
-  <section class="jumbotron text-center">
-    <div class="container">
-      <h1 class="jumbotron-heading">Search YouTube</h1>
-      <p class="lead text-muted">Youtube Videos based on your query</p>
-      <form method="POST">
-      <div class="input-group mb-3">
-          {% csrf_token %}
-          <input type="text" name="search" class="form-control" aria-label="Username">
+
+
+  <nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Navbar</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Search H</a>
+          </li>
+        </ul>
+        <form class="d-flex" method="POST" >
+              {% csrf_token %}
+            <input type="text" name="search" class="form-control" aria-label="Username">
+            
+              <button type="submit" name="submit" value="search" class="btn btn-outline-success" >Search</button>
+              <button type="submit" name="submit" value="lucky" class="btn btn-outline-success">All</button>
+            
+          </form>
       </div>
-      <p>
-        <button type="submit" name="submit" value="search" class="btn btn-primary my-2">YouTube Search</button>
-        <button type="submit" name="submit" value="lucky" class="btn btn-secondary my-2">All Videos</button>
-      </p>
-      </form>
     </div>
-  </section>
+  </nav>
+
+<div>
+  {% if videos.has_previous %}
+  <a href="{%url 'home' %}?page={{videos.previous_page_number}}">Previous Page</a>
+  {%endif%}
+  {% if videos.has_next %}
+  <a href="{%url 'home' %}?page={{videos.next_page_number}}">Next Page</a>
+  {%endif%}
+</div>
+
 
   <div class="album py-5 bg-light">
     <div class="container">

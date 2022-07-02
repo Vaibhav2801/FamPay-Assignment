@@ -2,29 +2,30 @@ from django.shortcuts import render, HttpResponse, redirect
 from api import views
 from django.conf import settings
 from django.http import JsonResponse
-import asyncio
 import requests
 from video.models import Video
+from rest_framework import pagination
 from django.db.models import Q
-from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator ,EmptyPage ,PageNotAnInteger
 # Create your views here.
 
 
 
-def fetch_videos():
+def fetch_videos(x):
     search_url='https://www.googleapis.com/youtube/v3/search'
     video_url = 'https://www.googleapis.com/youtube/v3/videos'
     
     search_params = {
             'part' : 'snippet',
-            'q' : 'Cricket',
+            'q' : x,
             'key' : settings.YOUTUBE_DATA_API_KEY,
              'maxResults' : 10,
              'type' : 'video'
         }
     video_ids=[]
     r=requests.get(search_url,params=search_params)
-    print(r.json()['items'][0]['id']['videoId'])
+    # print(r.text)
+    # print(r.json()['items'][0]['id']['videoId'])
     res=r.json()['items']
     for result in res:
          video_ids.append(result['id']['videoId'])
@@ -36,6 +37,7 @@ def fetch_videos():
             'maxResults' : 10
         }
     r = requests.get(video_url, params=video_params)
+    # print(r.text)
     results = r.json()['items']
     for result in results:
             video_data = Video(
@@ -54,18 +56,25 @@ def fetch_videos():
 
 
 def home(request):    
-    # asyncio.ensure_future(fetch_videos())
-    fetch_videos()
+    fetch_videos(request.POST.get('search'))
     item = []
+    item = Video.objects.all()
     if request.method == 'POST':
-        if request.POST['submit'] == 'lucky':
-            item = Video.objects.all()
-        else:
+        if request.POST['submit'] == 'search':
             item = Video.objects.filter(
                 Q(title__contains=request.POST['search'])      
             )
+    
+    p=Paginator(item,9)
+    p_num=request.GET.get('page',1)
+    print('Number of Pages')
+    print(p.num_pages)
+    try:
+        page=p.page(p_num)
+    except EmptyPage:
+        page=p.page(1)
     context = {
-    'videos' : item
+    'videos' : page
     }
     return render(request, 'index.html', context)
 

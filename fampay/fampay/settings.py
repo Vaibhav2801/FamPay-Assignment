@@ -103,6 +103,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 9
+}
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -131,5 +135,5 @@ STATICFILES_DIRS = (
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-YOUTUBE_DATA_API_KEY='AIzaSyBKuaTE4tCexpHAHSOZi1TOpzHNObOzD8Q'
+YOUTUBE_DATA_API_KEY='AIzaSyAqzxAwK7hyZ2TqNCPdy5MhszIkR0RhirY'
 
